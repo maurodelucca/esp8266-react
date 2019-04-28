@@ -18,6 +18,7 @@
 #include <NTPStatus.h>
 #include <OTASettingsService.h>
 #include <APStatus.h>
+#include <RebootService.h>
 
 #define SERIAL_BAUD_RATE 115200
 
@@ -32,6 +33,8 @@ WiFiScanner wifiScanner = WiFiScanner(&server);
 WiFiStatus wifiStatus = WiFiStatus(&server);
 NTPStatus ntpStatus = NTPStatus(&server);
 APStatus apStatus = APStatus(&server);
+
+RebootService rebootService = RebootService(&server);
 
 void setup() {
     // Disable wifi config persistance
@@ -78,4 +81,5 @@ void loop() {
   apSettingsService.loop();
   ntpSettingsService.loop();
   otaSettingsService.loop();
+  rebootService.loop();
 }
