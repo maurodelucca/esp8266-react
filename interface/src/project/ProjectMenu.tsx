@@ -3,6 +3,7 @@ import { Link, withRouter, RouteComponentProps } from 'react-router-dom';
 
 import {List, ListItem, ListItemIcon, ListItemText} from '@material-ui/core';
 import SettingsRemoteIcon from '@material-ui/icons/SettingsRemote';
+import BeachAccessIcon from '@material-ui/icons/BeachAccess';
 
 import { PROJECT_PATH } from '../api';
 
@@ -17,6 +18,12 @@ class ProjectMenu extends Component<RouteComponentProps> {
             <SettingsRemoteIcon />
           </ListItemIcon>
           <ListItemText primary="Demo Project" />
+        </ListItem>
+        <ListItem to={`/${PROJECT_PATH}/temp/`} selected={path.startsWith(`/${PROJECT_PATH}/temp/`)} button component={Link}>
+          <ListItemIcon>
+            <BeachAccessIcon />
+          </ListItemIcon>
+          <ListItemText primary="Temperature" />
         </ListItem>
       </List>
     )

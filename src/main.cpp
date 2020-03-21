@@ -1,4 +1,5 @@
 #include <DemoProject.h>
+#include <TempProject.h>
 #include <ESP8266React.h>
 #include <FS.h>
 
@@ -7,6 +8,7 @@
 AsyncWebServer server(80);
 ESP8266React esp8266React(&server, &SPIFFS);
 DemoProject demoProject = DemoProject(&server, &SPIFFS, esp8266React.getSecurityManager());
+TempProject tempProject = TempProject(&server, &SPIFFS, esp8266React.getSecurityManager());
 
 void setup() {
   // start serial and filesystem
@@ -25,6 +27,9 @@ void setup() {
   // start the demo project
   demoProject.begin();
 
+  // start the temp project
+  tempProject.begin();
+
   // start the server
   server.begin();
 }
@@ -35,4 +40,7 @@ void loop() {
 
   // run the demo project's loop function
   demoProject.loop();
+
+  // run the temp project's loop function
+  tempProject.loop();
 }
