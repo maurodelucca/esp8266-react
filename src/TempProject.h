@@ -9,11 +9,13 @@
 #define DEFAULT_TEMP_UNIT "celsius"
 #define DEFAULT_DHT_PIN 2
 #define DEFAULT_DHT_TYPE "dht22"
+#define DEFAULT_PROMETHEUS_EXPORTER true
 
 #define TEMP_SETTINGS_FILE "/config/tempSettings.json"
 #define TEMP_SETTINGS_PATH "/rest/tempSettings"
 #define TEMP_READ_SERVICE_PATH "/rest/readTemp"
 #define TEMP_RESET_SERVICE_PATH "/rest/resetTemp"
+#define TEMP_PROMETHEUS_SERVICE_PATH "/rest/metrics"
 #define TEMP_BUFFER_SIZE 256
 #define TEMP_MAX_JSON_BUFFER_SIZE 20000
 
@@ -23,6 +25,7 @@ class TempSettings {
   String tempUnit; // Temp display unit
   uint8_t dhtPin; // DHT data pin port
   String dhtType; // DHT sensor type: dht11, dht22
+  bool isPrometheusEnabled; // Prometheus exporter status
 };
 
 class TempRead {
@@ -52,6 +55,7 @@ class TempProject : public AdminSettingsService<TempSettings> {
 
   void readTemperatures(AsyncWebServerRequest* request);
   void resetTemperatures(AsyncWebServerRequest* request);
+  void prometheusMetrics(AsyncWebServerRequest* request);
 
  protected:
   void readFromJsonObject(JsonObject& root);

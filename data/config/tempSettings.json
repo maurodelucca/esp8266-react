@@ -2,5 +2,6 @@
   "read_frequency": 300,
   "dht_type": "dht22",
   "dht_pin": 2,
-  "temp_scale": "celsius"
+  "temp_scale": "celsius",
+  "prometheus_exporter": "true",
 }

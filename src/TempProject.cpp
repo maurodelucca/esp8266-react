@@ -11,6 +11,10 @@ TempProject::TempProject(AsyncWebServer* server, FS* fs, SecurityManager* securi
           HTTP_POST,
           securityManager->wrapRequest(std::bind(&TempProject::resetTemperatures, this, std::placeholders::_1),
                                       AuthenticationPredicates::IS_AUTHENTICATED));
+  server->on(TEMP_PROMETHEUS_SERVICE_PATH,
+          HTTP_GET,
+          securityManager->wrapRequest(std::bind(&TempProject::prometheusMetrics, this, std::placeholders::_1),
+                                      AuthenticationPredicates::NONE_REQUIRED));
 }
 
 TempProject::~TempProject() {
@@ -82,6 +86,29 @@ void TempProject::resetTemperatures(AsyncWebServerRequest* request) {
   request->send(202);
 }
 
+void TempProject::prometheusMetrics(AsyncWebServerRequest* request) {
+
+  if (!_settings.isPrometheusEnabled) {
+    request->send(404);
+  } else {
+    TempRead *lastRead = NULL;
+
+    if (_bufferOverflow && _nextWritePos == 0)
+      lastRead = &_lastReadsBuf[TEMP_BUFFER_SIZE-1];
+    else if (_nextWritePos > 0)
+      lastRead = &_lastReadsBuf[_nextWritePos-1];
+
+    if (lastRead != NULL) {
+      String tempText = "temp_monitor_temperature " + String((float)lastRead->temp/10, 1) + "\n";
+      String humText = "temp_monitor_humidity " + String((float)lastRead->hum/10, 1) + "\n";
+
+      request->send(200, "text/plain", tempText + humText);
+    } else {
+      request->send(404);
+    }
+  }
+}
+
 void TempProject::loop() {
   if(_reconfigureService) {
     _reconfigureService = false;
@@ -122,6 +149,7 @@ void TempProject::readFromJsonObject(JsonObject& root) {
   _settings.dhtPin = root.containsKey("dht_pin") ? root["dht_pin"].as<uint8_t>() : DEFAULT_DHT_PIN;
   _settings.dhtType = root.containsKey("dht_type") ? root["dht_type"].as<String>() : DEFAULT_DHT_TYPE;
   _settings.tempUnit = root.containsKey("temp_unit") ? root["temp_unit"].as<String>() : DEFAULT_TEMP_UNIT;
+  _settings.isPrometheusEnabled = root.containsKey("prometheus_exporter") ? root["prometheus_exporter"].as<bool>() : DEFAULT_PROMETHEUS_EXPORTER;
 }
 
 void TempProject::writeToJsonObject(JsonObject& root) {
@@ -129,6 +157,7 @@ void TempProject::writeToJsonObject(JsonObject& root) {
   root["dht_pin"] = _settings.dhtPin;
   root["dht_type"] = _settings.dhtType;
   root["temp_unit"] = _settings.tempUnit;
+  root["prometheus_exporter"] = _settings.isPrometheusEnabled;
 }
 
 void TempProject::onConfigUpdated() {
